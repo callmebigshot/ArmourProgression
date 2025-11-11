@@ -1,6 +1,7 @@
 package net.bigshot.armourprog.item;
 
 import net.bigshot.armourprog.ArmourProg;
+import net.bigshot.armourprog.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -18,6 +19,8 @@ public class ModCreativeModeTabs {
                     .title(Component.translatable("creativetab.armourprog_tab"))
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.WOOLCLOTH.get());
+
+                        pOutput.accept(ModBlocks.SEWING_TABLE.get());
 
                     })
                     .build());
