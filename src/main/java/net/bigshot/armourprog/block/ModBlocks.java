@@ -1,6 +1,7 @@
 package net.bigshot.armourprog.block;
 
 import net.bigshot.armourprog.ArmourProg;
+import net.bigshot.armourprog.block.custom.SewingTableBlock;
 import net.bigshot.armourprog.item.ModItems;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -19,7 +20,7 @@ public class ModBlocks {
             DeferredRegister.create(ForgeRegistries.BLOCKS, ArmourProg.MOD_ID);
 
     public static final RegistryObject<Block> SEWING_TABLE = registerBlock("sewing_table",
-            () -> new Block(BlockBehaviour.Properties.copy(Blocks.FLETCHING_TABLE)));
+            () -> new SewingTableBlock(BlockBehaviour.Properties.copy(Blocks.FLETCHING_TABLE)));
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

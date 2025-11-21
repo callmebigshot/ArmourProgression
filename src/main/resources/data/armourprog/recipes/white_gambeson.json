@@ -1,0 +1,13 @@
+{
+  "type": "armourprog:sewing",
+
+  "base_item": { "tag": "armourprog:sewing/base_items" },
+  "dye":       { "tag": "armourprog:sewing/dyes" },
+  "padding":   { "tag": "armourprog:sewing/padding" },
+  "embellish": { "tag": "armourprog:sewing/embellishments" },
+
+  "result": {
+    "item": "minecraft:leather_helmet",
+    "count": 1
+  }
+}

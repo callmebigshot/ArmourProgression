@@ -4,6 +4,8 @@ import com.mojang.logging.LogUtils;
 import net.bigshot.armourprog.block.ModBlocks;
 import net.bigshot.armourprog.item.ModCreativeModeTabs;
 import net.bigshot.armourprog.item.ModItems;
+import net.bigshot.armourprog.registry.ModMenuTypes;
+import net.bigshot.armourprog.registry.ModRecipeTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
@@ -68,6 +70,9 @@ public class ArmourProg
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModMenuTypes.MENUS.register(modEventBus);
+        ModRecipeTypes.SERIALIZERS.register(modEventBus);
+        ModRecipeTypes.TYPES.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
