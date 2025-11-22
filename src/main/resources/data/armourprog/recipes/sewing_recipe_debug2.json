@@ -1,0 +1,13 @@
+{
+  "type": "armourprog:sewing",
+
+  "base_item": { "item": "minecraft:white_wool" },
+  "dye":       { "item": "minecraft:red_dye" },
+  "padding":   { "item": "minecraft:feather" },
+  "embellish": { "item": "minecraft:diamond" },
+
+  "result": {
+    "item": "minecraft:acacia_log",
+    "count": 1
+  }
+}

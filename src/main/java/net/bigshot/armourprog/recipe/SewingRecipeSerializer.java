@@ -16,10 +16,16 @@ public class SewingRecipeSerializer implements RecipeSerializer<SewingRecipe> {
 
     @Override
     public SewingRecipe fromJson(ResourceLocation id, JsonObject json) {
+        // base_item is REQUIRED
+        if (!json.has("base_item")) {
+            throw new JsonSyntaxException("Missing 'base_item' for sewing recipe: " + id);
+        }
         Ingredient baseItem = Ingredient.fromJson(json.get("base_item"));
-        Ingredient dye = Ingredient.fromJson(json.get("dye"));
-        Ingredient padding = Ingredient.fromJson(json.get("padding"));
-        Ingredient embellish = Ingredient.fromJson(json.get("embellish"));
+
+        // these are OPTIONAL
+        Ingredient dye       = readIngredientOrEmpty(json, "dye");
+        Ingredient padding   = readIngredientOrEmpty(json, "padding");
+        Ingredient embellish = readIngredientOrEmpty(json, "embellish");
 
         if (!json.has("result")) {
             throw new JsonSyntaxException("Missing 'result' object for sewing recipe: " + id);
@@ -29,6 +35,10 @@ public class SewingRecipeSerializer implements RecipeSerializer<SewingRecipe> {
         ItemStack result = ShapedRecipe.itemStackFromJson(resultObj);
 
         return new SewingRecipe(id, baseItem, dye, padding, embellish, result);
+    }
+
+    private static Ingredient readIngredientOrEmpty(JsonObject json, String key) {
+        return json.has(key) ? Ingredient.fromJson(json.get(key)) : Ingredient.EMPTY;
     }
 
     @Override
@@ -50,6 +60,6 @@ public class SewingRecipeSerializer implements RecipeSerializer<SewingRecipe> {
         recipe.getPadding().toNetwork(buf);
         recipe.getEmbellish().toNetwork(buf);
 
-        buf.writeItem(recipe.getResult());
+        buf.writeItem(recipe.getResultItem(null));
     }
 }

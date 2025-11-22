@@ -4,7 +4,9 @@ import com.mojang.logging.LogUtils;
 import net.bigshot.armourprog.block.ModBlocks;
 import net.bigshot.armourprog.item.ModCreativeModeTabs;
 import net.bigshot.armourprog.item.ModItems;
+import net.bigshot.armourprog.network.ModNetworking;
 import net.bigshot.armourprog.registry.ModMenuTypes;
+import net.bigshot.armourprog.registry.ModRecipeSerializers;
 import net.bigshot.armourprog.registry.ModRecipeTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
@@ -73,6 +75,9 @@ public class ArmourProg
         ModMenuTypes.MENUS.register(modEventBus);
         ModRecipeTypes.SERIALIZERS.register(modEventBus);
         ModRecipeTypes.TYPES.register(modEventBus);
+        ModRecipeSerializers.SERIALIZERS.register(modEventBus);
+
+        ModNetworking.register();
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -81,12 +86,10 @@ public class ArmourProg
         modEventBus.addListener(this::addCreative);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(ModNetworking::register);
     }
+
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
