@@ -38,7 +38,6 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
     private static final int SLOT_U = 0;
     private static final int SLOT_V_DEFAULT = 166;
     private static final int SLOT_V_SELECTED = 184;
-    private static final int SLOT_V_HOVER = 202;
 
     // scrollbar
     private static final int SCROLLBAR_X = 127;
@@ -48,7 +47,6 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
     private static final int SCROLLBAR_TRACK_HEIGHT = 53;
 
     private int scrollOffset = 0;
-
 
     public SewingTableScreen(SewingTableMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -96,7 +94,8 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
         int totalRows = (total + COLUMNS - 1) / COLUMNS;
         int maxOffset = Math.max(totalRows - VISIBLE_ROWS, 0);
 
-        scrollOffset = Math.max(0, Math.min(scrollOffset, maxOffset));
+        if (scrollOffset > maxOffset) scrollOffset = maxOffset;
+        if (scrollOffset < 0) scrollOffset = 0;
 
         int left = leftPos + LIST_X;
         int top = topPos + LIST_Y;
@@ -114,95 +113,31 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
             int slotX = left + col * SLOT_WIDTH;
             int slotY = top + row * SLOT_HEIGHT;
 
-            // 1. Draw default slot background
-            gui.blit(TEXTURE, slotX, slotY,
-                    SLOT_U, SLOT_V_DEFAULT,
-                    SLOT_WIDTH, SLOT_HEIGHT);
+            int v = (recipeIndex == selectedIndex) ? SLOT_V_SELECTED : SLOT_V_DEFAULT;
 
-            // 2. Draw icon
+            // slot texture
+            gui.blit(TEXTURE, slotX, slotY, SLOT_U, v, SLOT_WIDTH, SLOT_HEIGHT);
+
+            // icon item
             ItemStack icon = recipes.get(recipeIndex).getResultItem(minecraft.level.registryAccess());
             gui.renderItem(icon, slotX, slotY + 1);
 
-            boolean hovered = isMouseOverIcon(mouseX, mouseY, slotX, slotY);
-
-            // --- 3. Draw hover overlay (pink) ---
-            if (hovered) {
-                gui.blit(TEXTURE, slotX, slotY,
-                        0, 202,    // HOVER texture UV
-                        SLOT_WIDTH, SLOT_HEIGHT);
-            }
-
-            // --- 4. Draw selected overlay ---
-            if (recipeIndex == selectedIndex) {
-                gui.blit(TEXTURE, slotX, slotY,
-                        0, 184,    // SELECTED texture UV
-                        SLOT_WIDTH, SLOT_HEIGHT);
-            }
-
-            // Tooltip
-            if (hovered) {
+            if (isMouseOverIcon(mouseX, mouseY, slotX, slotY)) {
                 gui.renderTooltip(font, icon, mouseX, mouseY);
             }
         }
     }
-
-
-
-
 
     private boolean isMouseOverIcon(int mouseX, int mouseY, int x, int y) {
         return mouseX >= x && mouseX < x + ICON_SIZE
                 && mouseY >= y && mouseY < y + ICON_SIZE;
     }
 
-    private int getRecipeClicked(double mouseX, double mouseY) {
-        List<SewingRecipe> recipes = menu.getAvailableRecipes();
-        if (recipes.isEmpty()) return -1;
-
-        int left = leftPos + LIST_X;
-        int top = topPos + LIST_Y;
-
-        for (int i = 0; i < COLUMNS * VISIBLE_ROWS; i++) {
-            int recipeIndex = scrollOffset * COLUMNS + i;
-            if (recipeIndex >= recipes.size()) break;
-
-            int row = i / COLUMNS;
-            int col = i % COLUMNS;
-
-            int x = left + col * SLOT_WIDTH;
-            int y = top + row * SLOT_HEIGHT;
-
-            if (mouseX >= x && mouseX < x + ICON_SIZE &&
-                    mouseY >= y && mouseY < y + ICON_SIZE)
-            {
-                return recipeIndex;
-            }
-        }
-        return -1;
-    }
-
-
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            int clickedIndex = getRecipeClicked(mouseX, mouseY);
-            if (clickedIndex != -1) {
-                // Update client-side selection so the highlight changes immediately
-                menu.setSelectedRecipe(clickedIndex);
-
-                // Tell the server which recipe index was clicked
-                if (minecraft != null && minecraft.gameMode != null) {
-                    minecraft.gameMode.handleInventoryButtonClick(menu.containerId, clickedIndex);
-                }
-
-                return true;
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return (button == 0 && handleRecipeClick(mouseX, mouseY))
+                || super.mouseClicked(mouseX, mouseY, button);
     }
-
-
-
 
     private boolean handleRecipeClick(double mouseX, double mouseY) {
         List<SewingRecipe> recipes = menu.getAvailableRecipes();
@@ -224,16 +159,12 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
             int y = top + row * SLOT_HEIGHT;
 
             if (isMouseOverIcon((int) mouseX, (int) mouseY, x, y)) {
-
                 menu.setSelectedRecipe(recipeIndex);
-                this.minecraft.player.containerMenu.broadcastChanges();  // <-- FIX
-
                 return true;
             }
         }
         return false;
     }
-
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {

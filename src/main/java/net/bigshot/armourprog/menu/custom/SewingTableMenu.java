@@ -127,6 +127,7 @@ public class SewingTableMenu extends AbstractContainerMenu {
             }
             updateOutputFromSelection();
         } else {
+            selectedRecipe = -1;
             output.setItem(0, ItemStack.EMPTY);
         }
         broadcastChanges();
@@ -134,26 +135,19 @@ public class SewingTableMenu extends AbstractContainerMenu {
 
     private void updateOutputFromSelection() {
         if (selectedRecipe >= 0 && selectedRecipe < availableRecipes.size()) {
-            SewingRecipe recipe = availableRecipes.get(selectedRecipe);
-
-            ItemStack result = recipe.assemble(input, level.registryAccess());
-
-            output.setItem(0, result.copy());
+            ItemStack result = availableRecipes.get(selectedRecipe)
+                    .getResultItem(level.registryAccess())
+                    .copy();
+            output.setItem(0, result);
         } else {
             output.setItem(0, ItemStack.EMPTY);
         }
     }
 
-
     public void setSelectedRecipe(int index) {
-        if (index < 0 || index >= availableRecipes.size())
-            return;
-
-        this.selectedRecipe = index;
-
-        if (!level.isClientSide) {
+        if (index >= 0 && index < availableRecipes.size()) {
+            selectedRecipe = index;
             updateOutputFromSelection();
-            broadcastChanges();
         }
     }
 
@@ -244,17 +238,6 @@ public class SewingTableMenu extends AbstractContainerMenu {
             this.clearContainer(player, this.input);
         }
     }
-
-    @Override
-    public boolean clickMenuButton(Player player, int id) {
-        if (id >= 0 && id < availableRecipes.size()) {
-            selectedRecipe = id;
-            updateOutputFromSelection();
-            return true;
-        }
-        return false;
-    }
-
 }
 
 
