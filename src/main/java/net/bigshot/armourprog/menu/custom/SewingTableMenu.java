@@ -164,6 +164,10 @@ public class SewingTableMenu extends AbstractContainerMenu {
 
         SewingRecipe recipe = availableRecipes.get(selectedRecipe);
 
+        if (!recipe.matchesStrict(input)) {
+            return;
+        }
+
         if (!recipe.getBaseItem().isEmpty()) input.getItem(0).shrink(1);
         if (!recipe.getDye().isEmpty()) input.getItem(1).shrink(1);
         if (!recipe.getPadding().isEmpty()) input.getItem(2).shrink(1);
@@ -224,6 +228,16 @@ public class SewingTableMenu extends AbstractContainerMenu {
         }
 
         return itemstack;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id >= 0 && id < availableRecipes.size()) {
+            selectedRecipe = id;
+            updateOutputFromSelection();
+            return true;
+        }
+        return false;
     }
 
     @Override

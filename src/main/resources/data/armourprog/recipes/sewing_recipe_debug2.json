@@ -1,4 +1,5 @@
 {
+  "replace": false,
   "type": "armourprog:sewing",
 
   "base_item": { "item": "minecraft:white_wool" },

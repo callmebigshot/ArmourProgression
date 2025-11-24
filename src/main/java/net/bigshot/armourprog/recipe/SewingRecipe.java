@@ -33,28 +33,15 @@ public class SewingRecipe implements Recipe<Container> {
 
     @Override
     public boolean matches(Container container, Level level) {
-        ItemStack baseStack = container.getItem(0);
-        ItemStack dyeStack = container.getItem(1);
-        ItemStack paddingStack = container.getItem(2);
-        ItemStack embellishStack = container.getItem(3);
-
-        if (!baseItem.test(baseStack)) return false;
-
-        if (!optionalSlotMatches(dye, dyeStack)) return false;
-        if (!optionalSlotMatches(padding, paddingStack)) return false;
-        if (!optionalSlotMatches(embellish, embellishStack)) return false;
-
-        return true;
+        return baseItem.test(container.getItem(0));
     }
 
-    private boolean optionalSlotMatches(Ingredient ingredient, ItemStack stack) {
-        if (ingredient.isEmpty()) {
-            return stack.isEmpty();
-        } else {
-            return ingredient.test(stack);
-        }
+    public boolean matchesStrict(Container container) {
+        return baseItem.test(container.getItem(0))
+                && dye.test(container.getItem(1))
+                && padding.test(container.getItem(2))
+                && embellish.test(container.getItem(3));
     }
-
 
     @Override
     public ItemStack assemble(Container container, RegistryAccess registryAccess) {

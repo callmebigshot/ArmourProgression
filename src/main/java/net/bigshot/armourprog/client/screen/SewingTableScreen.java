@@ -17,29 +17,22 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
     private static final ResourceLocation TEXTURE =
             new ResourceLocation(ArmourProg.MOD_ID, "textures/gui/sewing_table.png");
 
-    // where the first icon slot renders in the GUI
     private static final int LIST_X = 60;
     private static final int LIST_Y = 13;
 
-    // each slot is exactly 16×18 (no padding)
     private static final int SLOT_WIDTH = 16;
     private static final int SLOT_HEIGHT = 18;
 
-    // icon inside slot is 16×16
     private static final int ICON_SIZE = 16;
-
-    // spacing = slot size (no padding)
-    private static final int ICON_SPACING = SLOT_HEIGHT;
 
     private static final int COLUMNS = 4;
     private static final int VISIBLE_ROWS = 3;
 
-    // slot textures
     private static final int SLOT_U = 0;
     private static final int SLOT_V_DEFAULT = 166;
     private static final int SLOT_V_SELECTED = 184;
+    private static final int SLOT_V_HOVER = 202;
 
-    // scrollbar
     private static final int SCROLLBAR_X = 127;
     private static final int SCROLLBAR_Y = 13;
     private static final int SCROLLBAR_WIDTH = 12;
@@ -92,10 +85,7 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
 
         int total = recipes.size();
         int totalRows = (total + COLUMNS - 1) / COLUMNS;
-        int maxOffset = Math.max(totalRows - VISIBLE_ROWS, 0);
-
-        if (scrollOffset > maxOffset) scrollOffset = maxOffset;
-        if (scrollOffset < 0) scrollOffset = 0;
+        scrollOffset = Math.max(0, Math.min(scrollOffset, totalRows - VISIBLE_ROWS));
 
         int left = leftPos + LIST_X;
         int top = topPos + LIST_Y;
@@ -113,24 +103,31 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
             int slotX = left + col * SLOT_WIDTH;
             int slotY = top + row * SLOT_HEIGHT;
 
-            int v = (recipeIndex == selectedIndex) ? SLOT_V_SELECTED : SLOT_V_DEFAULT;
+            boolean hovering = isMouseOverSlot(mouseX, mouseY, slotX, slotY);
 
-            // slot texture
+            int v;
+            if (recipeIndex == selectedIndex) {
+                v = SLOT_V_SELECTED;
+            } else if (hovering) {
+                v = SLOT_V_HOVER;
+            } else {
+                v = SLOT_V_DEFAULT;
+            }
+
             gui.blit(TEXTURE, slotX, slotY, SLOT_U, v, SLOT_WIDTH, SLOT_HEIGHT);
 
-            // icon item
             ItemStack icon = recipes.get(recipeIndex).getResultItem(minecraft.level.registryAccess());
             gui.renderItem(icon, slotX, slotY + 1);
 
-            if (isMouseOverIcon(mouseX, mouseY, slotX, slotY)) {
+            if (hovering) {
                 gui.renderTooltip(font, icon, mouseX, mouseY);
             }
         }
     }
 
-    private boolean isMouseOverIcon(int mouseX, int mouseY, int x, int y) {
-        return mouseX >= x && mouseX < x + ICON_SIZE
-                && mouseY >= y && mouseY < y + ICON_SIZE;
+    private boolean isMouseOverSlot(int mouseX, int mouseY, int x, int y) {
+        return mouseX >= x && mouseX < x + SLOT_WIDTH &&
+                mouseY >= y && mouseY < y + SLOT_HEIGHT;
     }
 
     @Override
@@ -158,13 +155,18 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
             int x = left + col * SLOT_WIDTH;
             int y = top + row * SLOT_HEIGHT;
 
-            if (isMouseOverIcon((int) mouseX, (int) mouseY, x, y)) {
+            if (isMouseOverSlot((int) mouseX, (int) mouseY, x, y)) {
+                if (minecraft != null && minecraft.gameMode != null) {
+                    minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, recipeIndex);
+                }
                 menu.setSelectedRecipe(recipeIndex);
                 return true;
             }
         }
+
         return false;
     }
+
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
@@ -186,6 +188,7 @@ public class SewingTableScreen extends AbstractContainerScreen<SewingTableMenu> 
         gui.drawString(font, playerInventoryTitle, 8, imageHeight - 94, 4210752, false);
     }
 }
+
 
 
 
