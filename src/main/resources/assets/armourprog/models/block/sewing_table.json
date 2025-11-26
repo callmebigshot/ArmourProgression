@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "armourprog:block/sewing_table_top",
+    "bottom": "armourprog:block/sewing_table_bottom",
+    "side": "armourprog:block/sewing_table_side"
+  }
+}
